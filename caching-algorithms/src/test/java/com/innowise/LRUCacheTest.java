@@ -58,4 +58,51 @@ class LRUCacheTest {
     public void testEmptyCache() {
         assertNull(lruCache.get(1));
     }
+
+    @Test
+    public void testDelete() {
+        lruCache.put(1, "one");
+        lruCache.put(2, "two");
+        lruCache.delete(1);
+
+        assertNull(lruCache.get(1));
+        assertEquals("two", lruCache.get(2));
+    }
+
+    @Test
+    public void testDeleteNotExistent() {
+        lruCache.put(1, "one");
+        lruCache.delete(2);
+
+        assertEquals("one", lruCache.get(1));
+    }
+
+    @Test
+    public void testDeleteAll() {
+        lruCache.put(1, "one");
+        lruCache.put(2, "two");
+        lruCache.deleteAll();
+
+        assertNull(lruCache.get(1));
+        assertNull(lruCache.get(2));
+    }
+
+    @Test
+    public void testContains() {
+        lruCache.put(1, "one");
+
+        assertTrue(lruCache.contains(1));
+        assertFalse(lruCache.contains(2));
+    }
+
+    @Test
+    public void testContainsAfterEviction() {
+        lruCache.put(1, "one");
+        lruCache.put(2, "two");
+        lruCache.put(3, "three");
+
+        assertFalse(lruCache.contains(1));
+        assertTrue(lruCache.contains(2));
+        assertTrue(lruCache.contains(3));
+    }
 }

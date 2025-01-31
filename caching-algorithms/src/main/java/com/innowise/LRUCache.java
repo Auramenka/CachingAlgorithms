@@ -29,6 +29,21 @@ public class LRUCache<K, V> implements Cache<K, V> {
         cache.put(key, value);
     }
 
+    @Override
+    public void delete(K key) {
+        cache.remove(key);
+    }
+
+    @Override
+    public void deleteAll() {
+        cache.clear();
+    }
+
+    @Override
+    public boolean contains(K key) {
+        return cache.containsKey(key);
+    }
+
     private void removeEldestEntry() {
         K eldestKey = cache.keySet().iterator().next();
         cache.remove(eldestKey);

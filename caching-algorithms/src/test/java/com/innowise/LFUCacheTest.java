@@ -61,4 +61,50 @@ class LFUCacheTest {
     public void testGetNonExistentKey() {
         assertNull(lfuCache.get(99));
     }
+
+    @Test
+    public void testDelete() {
+        lfuCache.put(1, "A");
+        lfuCache.put(2, "B");
+        lfuCache.delete(1);
+
+        assertNull(lfuCache.get(1));
+        assertEquals("B", lfuCache.get(2));
+    }
+
+    @Test
+    public void testDeleteNotExistentKey() {
+        lfuCache.put(1, "A");
+        lfuCache.delete(2);
+        assertEquals("A", lfuCache.get(1));
+    }
+
+    @Test
+    public void testDeleteAll() {
+        lfuCache.put(1, "A");
+        lfuCache.put(2, "B");
+        lfuCache.deleteAll();
+
+        assertNull(lfuCache.get(1));
+        assertNull(lfuCache.get(2));
+    }
+
+    @Test
+    public void testContains() {
+        lfuCache.put(1, "A");
+
+        assertTrue(lfuCache.contains(1));
+        assertFalse(lfuCache.contains(2));
+    }
+
+    @Test
+    public void testContainsAfterEviction() {
+        lfuCache.put(1, "A");
+        lfuCache.put(2, "B");
+        lfuCache.put(3, "C");
+
+        assertFalse(lfuCache.contains(1));
+        assertTrue(lfuCache.contains(2));
+        assertTrue(lfuCache.contains(3));
+    }
 }

@@ -33,13 +33,43 @@ public class LFUCache<K, V> implements Cache<K, V> {
 
     @Override
     public void put(K key, V value) {
-        if (capacity <= 0) return;
+        if (capacity <= 0) {
+            return;
+        }
 
         if (valueMap.containsKey(key)) {
             updateExistingKey(key, value);
         } else {
             addNewKey(key, value);
         }
+    }
+
+    @Override
+    public void delete(K key) {
+        if (!valueMap.containsKey(key)) {
+            return;
+        }
+
+        int frequency = frequencyMap.get(key);
+
+        valueMap.remove(key);
+        frequencyMap.remove(key);
+        frequencyList.get(frequency).remove(key);
+
+        updateFrequencyAfterDeletion(frequency);
+    }
+
+    @Override
+    public void deleteAll() {
+        valueMap.clear();
+        frequencyMap.clear();
+        frequencyList.clear();
+        minFrequency = 0;
+    }
+
+    @Override
+    public boolean contains(K key) {
+        return valueMap.containsKey(key);
     }
 
     private void addNewKey(K key, V value) {
@@ -70,14 +100,18 @@ public class LFUCache<K, V> implements Cache<K, V> {
 
         frequencyList.get(frequency).remove(key);
 
+        updateFrequencyAfterDeletion(frequency);
+
+        addToFrequencyList(frequency + 1, key, valueMap.get(key));
+    }
+
+    private void updateFrequencyAfterDeletion(int frequency) {
         if (frequencyList.get(frequency).isEmpty()) {
             frequencyList.remove(frequency);
             if (minFrequency == frequency) {
                 minFrequency++;
             }
         }
-
-        addToFrequencyList(frequency + 1, key, valueMap.get(key));
     }
 
     private void removeLeastFrequentlyUsed() {
@@ -88,5 +122,16 @@ public class LFUCache<K, V> implements Cache<K, V> {
         }
         valueMap.remove(keyToEvict);
         frequencyMap.remove(keyToEvict);
+    }
+
+    @Override
+    public String toString() {
+        return "LFUCache{" +
+                "capacity=" + capacity +
+                ", minFrequency=" + minFrequency +
+                ", valueMap=" + valueMap +
+                ", frequencyMap=" + frequencyMap +
+                ", frequencyList=" + frequencyList +
+                '}';
     }
 }
